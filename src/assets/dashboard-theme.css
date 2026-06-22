@@ -1,0 +1,181 @@
+/* Liquid glass dashboard theme */
+:root {
+  --dash-bg: #0a0b0d;
+  --dash-teal: #00f2ff;
+  --dash-teal-soft: rgba(0, 242, 255, 0.65);
+  --dash-teal-muted: rgba(0, 242, 255, 0.2);
+  --dash-teal-glow: rgba(0, 242, 255, 0.14);
+  --dash-text: #ffffff;
+  --dash-text-muted: rgba(255, 255, 255, 0.45);
+  --dash-glass-bg: rgba(255, 255, 255, 0.03);
+  --dash-glass-border: rgba(255, 255, 255, 0.08);
+  --dash-glass-border-hover: rgba(0, 242, 255, 0.18);
+  --dash-glass-blur: 16px;
+  --dash-radius: 16px;
+}
+
+body {
+  background: var(--dash-bg);
+}
+
+.dashboard-scene {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--dash-bg);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dashboard-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  z-index: 0;
+}
+
+.dashboard-orb--1 {
+  top: -8%;
+  left: 15%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(0, 242, 255, 0.12) 0%, transparent 70%);
+}
+
+.dashboard-orb--2 {
+  bottom: 5%;
+  right: 10%;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(0, 180, 220, 0.08) 0%, transparent 70%);
+}
+
+.glass-app-bar {
+  background: rgba(10, 11, 13, 0.72) !important;
+  backdrop-filter: blur(var(--dash-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dash-glass-blur));
+  border-bottom: 1px solid var(--dash-glass-border) !important;
+}
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--dash-glass-bg) !important;
+  backdrop-filter: blur(var(--dash-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dash-glass-blur));
+  border: 1px solid var(--dash-glass-border) !important;
+  border-radius: var(--dash-radius) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(0, 242, 255, 0.03),
+    0 12px 40px rgba(0, 0, 0, 0.45);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--dash-glass-border-hover) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 24px rgba(0, 242, 255, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.glass-card--chart::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 20%;
+  width: 55%;
+  height: 55%;
+  background: radial-gradient(circle, var(--dash-teal-glow) 0%, transparent 68%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glass-card--chart .v-card-title,
+.glass-card--chart .chart-container {
+  position: relative;
+  z-index: 1;
+}
+
+.metric-label {
+  color: var(--dash-text-muted);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+.metric-value {
+  color: var(--dash-text);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.chart-title {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.change-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.change-pill--up {
+  color: var(--dash-teal);
+  background: rgba(0, 242, 255, 0.1);
+  border: 1px solid rgba(0, 242, 255, 0.22);
+}
+
+.change-pill--down {
+  color: #ff7b7b;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.change-pill--flat {
+  color: var(--dash-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--dash-glass-border);
+}
+
+.change-hint {
+  color: var(--dash-text-muted);
+  font-size: 0.6875rem;
+}
+
+.month-picker.glass-select .v-field {
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--dash-glass-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.month-picker.glass-select .v-field--focused {
+  border-color: rgba(0, 242, 255, 0.35) !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 242, 255, 0.12),
+    0 0 20px rgba(0, 242, 255, 0.08);
+}
+
+.dashboard-title {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--dash-text);
+}
+
+.dashboard-main {
+  position: relative;
+  z-index: 1;
+}
