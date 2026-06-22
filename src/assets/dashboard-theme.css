@@ -169,6 +169,60 @@ body {
     0 0 20px rgba(0, 242, 255, 0.08);
 }
 
+.month-picker.glass-select .v-field__input,
+.month-picker.glass-select .v-select__selection-text {
+  color: var(--dash-text) !important;
+}
+
+.month-picker.glass-select .v-label {
+  color: var(--dash-teal-soft) !important;
+}
+
+.month-picker-menu.v-overlay__content {
+  background: rgba(14, 16, 18, 0.96) !important;
+  backdrop-filter: blur(var(--dash-glass-blur));
+  -webkit-backdrop-filter: blur(var(--dash-glass-blur));
+  border: 1px solid var(--dash-glass-border);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(0, 242, 255, 0.06),
+    0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+.month-picker-menu .v-list {
+  background: transparent !important;
+  padding: 6px !important;
+}
+
+.month-picker-menu .v-list-item {
+  color: rgba(255, 255, 255, 0.88) !important;
+  border-radius: 8px;
+  min-height: 40px !important;
+}
+
+.month-picker-menu .v-list-item-title {
+  color: inherit !important;
+  font-size: 0.875rem;
+}
+
+.month-picker-menu .v-list-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.month-picker-menu .v-list-item--active {
+  background: rgba(0, 242, 255, 0.14) !important;
+  color: var(--dash-teal) !important;
+}
+
+.month-picker-menu .v-list-item--active .v-list-item-title {
+  color: var(--dash-teal) !important;
+}
+
+.month-picker-menu .v-list-item--active:hover {
+  background: rgba(0, 242, 255, 0.2) !important;
+}
+
 .dashboard-title {
   font-weight: 500;
   letter-spacing: -0.02em;
