@@ -295,7 +295,7 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
     <div class="dashboard-orb dashboard-orb--2" />
 
     <v-app-bar flat class="glass-app-bar" height="72">
-      <v-app-bar-title class="dashboard-title">My Dashboard</v-app-bar-title>
+      <v-app-bar-title class="dashboard-title">My Protogen Dashboard</v-app-bar-title>
       <v-spacer />
       <v-select
         v-model="selectedMonth"
