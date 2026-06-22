@@ -308,7 +308,8 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
         variant="outlined"
         class="month-picker glass-select"
         color="primary"
-        :menu-props="{ contentClass: 'month-picker-menu' }"
+        :menu-props="{ contentClass: 'month-picker-menu', theme: 'light' }"
+        :list-props="{ class: 'month-picker-list' }"
       />
     </v-app-bar>
 

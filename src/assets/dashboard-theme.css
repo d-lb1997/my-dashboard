@@ -178,49 +178,53 @@ body {
   color: var(--dash-teal-soft) !important;
 }
 
-.month-picker-menu.v-overlay__content {
-  background: rgba(14, 16, 18, 0.96) !important;
-  backdrop-filter: blur(var(--dash-glass-blur));
-  -webkit-backdrop-filter: blur(var(--dash-glass-blur));
-  border: 1px solid var(--dash-glass-border);
+.month-picker-menu.v-overlay__content,
+.month-picker-menu {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 12px;
-  box-shadow:
-    0 0 0 1px rgba(0, 242, 255, 0.06),
-    0 16px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
 }
 
-.month-picker-menu .v-list {
-  background: transparent !important;
+.month-picker-menu .v-list,
+.month-picker-list {
+  background: #ffffff !important;
   padding: 6px !important;
 }
 
-.month-picker-menu .v-list-item {
-  color: rgba(255, 255, 255, 0.88) !important;
+.month-picker-menu .v-list-item,
+.month-picker-list .v-list-item {
+  color: #111111 !important;
   border-radius: 8px;
   min-height: 40px !important;
 }
 
-.month-picker-menu .v-list-item-title {
-  color: inherit !important;
+.month-picker-menu .v-list-item-title,
+.month-picker-list .v-list-item-title {
+  color: #111111 !important;
   font-size: 0.875rem;
 }
 
-.month-picker-menu .v-list-item:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: #ffffff !important;
+.month-picker-menu .v-list-item:hover,
+.month-picker-list .v-list-item:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #000000 !important;
 }
 
-.month-picker-menu .v-list-item--active {
-  background: rgba(0, 242, 255, 0.14) !important;
-  color: var(--dash-teal) !important;
+.month-picker-menu .v-list-item:hover .v-list-item-title,
+.month-picker-list .v-list-item:hover .v-list-item-title {
+  color: #000000 !important;
 }
 
-.month-picker-menu .v-list-item--active .v-list-item-title {
-  color: var(--dash-teal) !important;
+.month-picker-menu .v-list-item--active,
+.month-picker-list .v-list-item--active {
+  background: rgba(0, 180, 200, 0.16) !important;
+  color: #004d5a !important;
 }
 
-.month-picker-menu .v-list-item--active:hover {
-  background: rgba(0, 242, 255, 0.2) !important;
+.month-picker-menu .v-list-item--active .v-list-item-title,
+.month-picker-list .v-list-item--active .v-list-item-title {
+  color: #004d5a !important;
 }
 
 .dashboard-title {
