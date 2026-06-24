@@ -15,6 +15,8 @@ import {
   type ChartOptions,
 } from 'chart.js'
 import metricsJson from '@/data/metrics.json'
+import MetricsOverview from '@/components/MetricsOverview.vue'
+import FastForwardLogo from '@/components/FastForwardLogo.vue'
 import type { MetricsData, MetricKey, SummaryMetric } from '@/types/metrics'
 import {
   CHART_COLORS,
@@ -255,6 +257,14 @@ const metricDefinitions: { key: MetricKey; label: string; icon: string }[] = [
   { key: 'orders', label: 'Orders', icon: 'mdi-cart-outline' },
 ]
 
+const periodLabel = computed(() => {
+  if (selectedMonth.value === null) {
+    return `Full year ${metricsData.year}`
+  }
+  const month = months.find((m) => m.month === selectedMonth.value)
+  return month ? `${month.label} ${metricsData.year}` : `Full year ${metricsData.year}`
+})
+
 const summaryMetrics = computed<SummaryMetric[]>(() => {
   const { current, previous } = getMonthlyPair(months, selectedMonth.value)
   const isAll = selectedMonth.value === null
@@ -295,7 +305,10 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
     <div class="dashboard-orb dashboard-orb--2" />
 
     <v-app-bar flat class="glass-app-bar" height="72">
-      <v-app-bar-title class="dashboard-title">My Protogen Dashboard</v-app-bar-title>
+      <v-app-bar-title class="app-brand">
+        <FastForwardLogo />
+        <span class="dashboard-title">FastForward Logistics</span>
+      </v-app-bar-title>
       <v-spacer />
       <v-select
         v-model="selectedMonth"
@@ -333,6 +346,12 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
                 </div>
               </v-card-text>
             </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-4">
+          <v-col cols="12">
+            <MetricsOverview :metrics="summaryMetrics" :period-label="periodLabel" />
           </v-col>
         </v-row>
 

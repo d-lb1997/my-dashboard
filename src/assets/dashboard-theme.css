@@ -233,6 +233,12 @@ body {
   color: var(--dash-text);
 }
 
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .dashboard-main {
   position: relative;
   z-index: 1;
