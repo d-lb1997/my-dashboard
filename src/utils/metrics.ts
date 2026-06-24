@@ -57,22 +57,43 @@ export function getMonthlyPair(
   }
 }
 
-export function aggregateValue(key: MetricKey, months: MonthMetrics[]): number {
-  if (key === 'conversions') {
-    return months.reduce((sum, m) => sum + m.conversions, 0) / months.length
+export function getRegionalAverage(month: MonthMetrics): number {
+  if (month.regions.length === 0) {
+    return 0
   }
-  return months.reduce((sum, m) => sum + m[key], 0)
+  return month.regions.reduce((sum, region) => sum + region.onTimeDeliveryRate, 0) / month.regions.length
+}
+
+export function getMonthMetricValue(month: MonthMetrics, key: MetricKey): number {
+  switch (key) {
+    case 'shipmentVolume':
+      return month.shipmentVolume
+    case 'onTimeDeliveryRate':
+      return month.onTimeDeliveryRate
+    case 'openExceptions':
+      return month.openExceptions
+    case 'regionalPerformance':
+      return getRegionalAverage(month)
+  }
+}
+
+export function aggregateValue(key: MetricKey, months: MonthMetrics[]): number {
+  if (key === 'shipmentVolume') {
+    return months.reduce((sum, month) => sum + month.shipmentVolume, 0)
+  }
+  if (key === 'openExceptions') {
+    return months.reduce((sum, month) => sum + month.openExceptions, 0)
+  }
+  if (key === 'onTimeDeliveryRate') {
+    return months.reduce((sum, month) => sum + month.onTimeDeliveryRate, 0) / months.length
+  }
+  return months.reduce((sum, month) => sum + getRegionalAverage(month), 0) / months.length
 }
 
 export function formatMetricValue(key: MetricKey, value: number): string {
   switch (key) {
-    case 'revenue':
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-      }).format(value)
-    case 'conversions':
+    case 'onTimeDeliveryRate':
+    case 'regionalPerformance':
       return `${value.toFixed(1)}%`
     default:
       return new Intl.NumberFormat('en-US').format(Math.round(value))
@@ -85,4 +106,17 @@ export function formatChangeText(change: MetricChange): string {
   }
   const sign = change.direction === 'up' ? '+' : ''
   return `${sign}${change.percent.toFixed(1)}%`
+}
+
+export function getSentimentDirection(
+  change: MetricChange,
+  higherIsBetter: boolean,
+): MetricChange['direction'] {
+  if (change.direction === 'flat' || higherIsBetter) {
+    return change.direction
+  }
+  if (change.direction === 'up') {
+    return 'down'
+  }
+  return 'up'
 }

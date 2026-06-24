@@ -25,7 +25,10 @@ import {
   formatChangeText,
   formatMetricValue,
   getMonthlyPair,
+  getMonthMetricValue,
+  getSentimentDirection,
 } from '@/utils/metrics'
+import { scatterEnterStyle } from '@/utils/animate'
 
 ChartJS.register(
   Title,
@@ -58,6 +61,13 @@ const selectedIndex = computed(() => {
 
 const labels = computed(() => months.map((m) => m.label))
 
+const filteredMonths = computed(() => {
+  if (selectedMonth.value === null) {
+    return months
+  }
+  return months.filter((m) => m.month === selectedMonth.value)
+})
+
 function barColors(): string[] {
   return months.map((_, index) =>
     selectedIndex.value === -1 || index === selectedIndex.value
@@ -80,12 +90,12 @@ function pointColors(): string[] {
   )
 }
 
-const revenueChartData = computed(() => ({
+const shipmentVolumeChartData = computed(() => ({
   labels: labels.value,
   datasets: [
     {
-      label: 'Revenue',
-      data: months.map((m) => m.revenue),
+      label: 'Shipment Volume',
+      data: months.map((m) => m.shipmentVolume),
       backgroundColor: barColors(),
       borderColor: months.map((_, index) =>
         selectedIndex.value === -1 || index === selectedIndex.value
@@ -99,12 +109,12 @@ const revenueChartData = computed(() => ({
   ],
 }))
 
-const visitorsChartData = computed(() => ({
+const onTimeChartData = computed(() => ({
   labels: labels.value,
   datasets: [
     {
-      label: 'Visitors',
-      data: months.map((m) => m.visitors),
+      label: 'On-Time Delivery Rate',
+      data: months.map((m) => m.onTimeDeliveryRate),
       borderColor: CHART_COLORS.primary,
       backgroundColor: CHART_COLORS.primaryFill,
       pointBackgroundColor: pointColors(),
@@ -123,12 +133,12 @@ const visitorsChartData = computed(() => ({
   ],
 }))
 
-const conversionsChartData = computed(() => ({
+const openExceptionsChartData = computed(() => ({
   labels: labels.value,
   datasets: [
     {
-      label: 'Conversions',
-      data: months.map((m) => m.conversions),
+      label: 'Open Exceptions',
+      data: months.map((m) => m.openExceptions),
       borderColor: CHART_COLORS.primary,
       backgroundColor: CHART_COLORS.primaryFill,
       pointBackgroundColor: pointColors(),
@@ -147,21 +157,59 @@ const conversionsChartData = computed(() => ({
   ],
 }))
 
-const revenueChartOptions: ChartOptions<'bar'> = {
+const regionalChartData = computed(() => {
+  const periodMonths = filteredMonths.value
+  const firstMonth = periodMonths[0]
+  if (!firstMonth) {
+    return { labels: [], datasets: [] }
+  }
+
+  const regionLabels = firstMonth.regions.map((r) => r.label)
+  const regionRates = regionLabels.map((_, index) => {
+    const total = periodMonths.reduce(
+      (sum, month) => sum + (month.regions[index]?.onTimeDeliveryRate ?? 0),
+      0,
+    )
+    return total / periodMonths.length
+  })
+
+  return {
+    labels: regionLabels,
+    datasets: [
+      {
+        label: 'On-Time Rate',
+        data: regionRates,
+        backgroundColor: regionLabels.map((_, index) =>
+          `rgba(0, 242, 255, ${0.9 - index * 0.15})`,
+        ),
+        borderColor: 'rgba(0, 242, 255, 0.5)',
+        borderWidth: 1,
+        borderRadius: 6,
+        borderSkipped: false,
+      },
+    ],
+  }
+})
+
+const tooltipDefaults = {
+  backgroundColor: 'rgba(14, 16, 18, 0.92)',
+  borderColor: 'rgba(0, 242, 255, 0.25)',
+  borderWidth: 1,
+  padding: 12,
+  titleColor: 'rgba(255, 255, 255, 0.55)',
+  bodyColor: '#ffffff',
+}
+
+const shipmentVolumeChartOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: 'rgba(14, 16, 18, 0.92)',
-      borderColor: 'rgba(0, 242, 255, 0.25)',
-      borderWidth: 1,
-      padding: 12,
-      titleColor: 'rgba(255, 255, 255, 0.55)',
-      bodyColor: '#ffffff',
+      ...tooltipDefaults,
       callbacks: {
         label: (ctx) =>
-          `Revenue: ${formatMetricValue('revenue', ctx.parsed.y ?? 0)}`,
+          `Shipments: ${formatMetricValue('shipmentVolume', ctx.parsed.y ?? 0)}`,
       },
     },
   },
@@ -173,63 +221,22 @@ const revenueChartOptions: ChartOptions<'bar'> = {
     },
     y: {
       grid: { color: CHART_COLORS.grid },
-      ticks: {
-        color: CHART_COLORS.tick,
-        callback: (value) =>
-          formatMetricValue('revenue', Number(value)).replace('.00', ''),
-      },
-      border: { display: false },
-    },
-  },
-}
-
-const visitorsChartOptions: ChartOptions<'line'> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: 'rgba(14, 16, 18, 0.92)',
-      borderColor: 'rgba(0, 242, 255, 0.25)',
-      borderWidth: 1,
-      padding: 12,
-      titleColor: 'rgba(255, 255, 255, 0.55)',
-      bodyColor: '#ffffff',
-      callbacks: {
-        label: (ctx) =>
-          `Visitors: ${formatMetricValue('visitors', ctx.parsed.y ?? 0)}`,
-      },
-    },
-  },
-  scales: {
-    x: {
-      grid: { color: CHART_COLORS.grid },
-      ticks: { color: CHART_COLORS.tick },
-      border: { display: false },
-    },
-    y: {
-      grid: { color: CHART_COLORS.grid },
       ticks: { color: CHART_COLORS.tick },
       border: { display: false },
     },
   },
 }
 
-const conversionsChartOptions: ChartOptions<'line'> = {
+const onTimeChartOptions: ChartOptions<'line'> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: 'rgba(14, 16, 18, 0.92)',
-      borderColor: 'rgba(0, 242, 255, 0.25)',
-      borderWidth: 1,
-      padding: 12,
-      titleColor: 'rgba(255, 255, 255, 0.55)',
-      bodyColor: '#ffffff',
+      ...tooltipDefaults,
       callbacks: {
         label: (ctx) =>
-          `Conversions: ${formatMetricValue('conversions', ctx.parsed.y ?? 0)}`,
+          `On-Time: ${formatMetricValue('onTimeDeliveryRate', ctx.parsed.y ?? 0)}`,
       },
     },
   },
@@ -246,15 +253,101 @@ const conversionsChartOptions: ChartOptions<'line'> = {
         callback: (value) => `${value}%`,
       },
       border: { display: false },
+      min: 90,
+      max: 100,
     },
   },
 }
 
-const metricDefinitions: { key: MetricKey; label: string; icon: string }[] = [
-  { key: 'revenue', label: 'Revenue', icon: 'mdi-currency-usd' },
-  { key: 'visitors', label: 'Visitors', icon: 'mdi-account-group-outline' },
-  { key: 'conversions', label: 'Conversions', icon: 'mdi-percent-outline' },
-  { key: 'orders', label: 'Orders', icon: 'mdi-cart-outline' },
+const openExceptionsChartOptions: ChartOptions<'line'> = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      ...tooltipDefaults,
+      callbacks: {
+        label: (ctx) =>
+          `Exceptions: ${formatMetricValue('openExceptions', ctx.parsed.y ?? 0)}`,
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { color: CHART_COLORS.grid },
+      ticks: { color: CHART_COLORS.tick },
+      border: { display: false },
+    },
+    y: {
+      grid: { color: CHART_COLORS.grid },
+      ticks: { color: CHART_COLORS.tick },
+      border: { display: false },
+    },
+  },
+}
+
+const regionalChartOptions: ChartOptions<'bar'> = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      ...tooltipDefaults,
+      callbacks: {
+        label: (ctx) =>
+          `On-Time: ${formatMetricValue('onTimeDeliveryRate', ctx.parsed.y ?? 0)}`,
+      },
+    },
+  },
+  scales: {
+    x: {
+      grid: { color: CHART_COLORS.grid },
+      ticks: { color: CHART_COLORS.tick },
+      border: { display: false },
+    },
+    y: {
+      grid: { color: CHART_COLORS.grid },
+      ticks: {
+        color: CHART_COLORS.tick,
+        callback: (value) => `${value}%`,
+      },
+      border: { display: false },
+      min: 90,
+      max: 100,
+    },
+  },
+}
+
+const metricDefinitions: {
+  key: MetricKey
+  label: string
+  icon: string
+  higherIsBetter: boolean
+}[] = [
+  {
+    key: 'shipmentVolume',
+    label: 'Shipment Volume',
+    icon: 'mdi-truck-fast-outline',
+    higherIsBetter: true,
+  },
+  {
+    key: 'onTimeDeliveryRate',
+    label: 'On-Time Delivery',
+    icon: 'mdi-clock-check-outline',
+    higherIsBetter: true,
+  },
+  {
+    key: 'regionalPerformance',
+    label: 'Regional Performance',
+    icon: 'mdi-earth',
+    higherIsBetter: true,
+  },
+  {
+    key: 'openExceptions',
+    label: 'Open Exceptions',
+    icon: 'mdi-alert-circle-outline',
+    higherIsBetter: false,
+  },
 ]
 
 const periodLabel = computed(() => {
@@ -269,11 +362,11 @@ const summaryMetrics = computed<SummaryMetric[]>(() => {
   const { current, previous } = getMonthlyPair(months, selectedMonth.value)
   const isAll = selectedMonth.value === null
 
-  return metricDefinitions.map(({ key, label, icon }) => {
-    const displayValue = isAll ? aggregateValue(key, months) : current[key]
+  return metricDefinitions.map(({ key, label, icon, higherIsBetter }) => {
+    const displayValue = isAll ? aggregateValue(key, months) : getMonthMetricValue(current, key)
     const change =
       previous !== null
-        ? computeChange(current[key], previous[key])
+        ? computeChange(getMonthMetricValue(current, key), getMonthMetricValue(previous, key))
         : { percent: 0, direction: 'flat' as const }
 
     return {
@@ -282,17 +375,20 @@ const summaryMetrics = computed<SummaryMetric[]>(() => {
       icon,
       value: formatMetricValue(key, displayValue),
       change,
+      higherIsBetter,
     }
   })
 })
 
-function changeIcon(direction: SummaryMetric['change']['direction']): string {
+function changeIcon(metric: SummaryMetric): string {
+  const direction = getSentimentDirection(metric.change, metric.higherIsBetter)
   if (direction === 'up') return 'mdi-arrow-up'
   if (direction === 'down') return 'mdi-arrow-down'
   return 'mdi-minus'
 }
 
-function changePillClass(direction: SummaryMetric['change']['direction']): string {
+function changePillClass(metric: SummaryMetric): string {
+  const direction = getSentimentDirection(metric.change, metric.higherIsBetter)
   if (direction === 'up') return 'change-pill--up'
   if (direction === 'down') return 'change-pill--down'
   return 'change-pill--flat'
@@ -305,11 +401,11 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
     <div class="dashboard-orb dashboard-orb--2" />
 
     <v-app-bar flat class="glass-app-bar" height="72">
-      <v-app-bar-title class="app-brand">
+      <div class="app-brand">
         <FastForwardLogo />
         <span class="dashboard-title">FastForward Logistics</span>
-      </v-app-bar-title>
-      <v-spacer />
+      </div>
+      <v-spacer class="app-bar-spacer" />
       <v-select
         v-model="selectedMonth"
         :items="monthOptions"
@@ -329,8 +425,18 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
     <v-main class="dashboard-main">
       <v-container class="py-8" fluid>
         <v-row>
-          <v-col v-for="metric in summaryMetrics" :key="metric.key" cols="12" sm="6" md="3">
-            <v-card flat class="glass-card metric-card">
+          <v-col
+            v-for="(metric, index) in summaryMetrics"
+            :key="metric.key"
+            cols="12"
+            sm="6"
+            md="3"
+          >
+            <v-card
+              flat
+              class="glass-card metric-card dashboard-tile-enter"
+              :style="scatterEnterStyle(index, 120)"
+            >
               <v-card-text class="pa-5">
                 <div class="d-flex align-center metric-label mb-4">
                   <v-icon :icon="metric.icon" size="small" color="primary" class="mr-2" />
@@ -338,8 +444,8 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
                 </div>
                 <div class="metric-value mb-4">{{ metric.value }}</div>
                 <div class="d-flex align-center flex-wrap ga-2">
-                  <span class="change-pill" :class="changePillClass(metric.change.direction)">
-                    <v-icon :icon="changeIcon(metric.change.direction)" size="x-small" />
+                  <span class="change-pill" :class="changePillClass(metric)">
+                    <v-icon :icon="changeIcon(metric)" size="x-small" />
                     {{ formatChangeText(metric.change) }}
                   </span>
                   <span class="change-hint">from previous month</span>
@@ -351,25 +457,35 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
 
         <v-row class="mt-4">
           <v-col cols="12">
-            <MetricsOverview :metrics="summaryMetrics" :period-label="periodLabel" />
+            <div class="dashboard-tile-enter" :style="scatterEnterStyle(4, 120)">
+              <MetricsOverview :metrics="summaryMetrics" :period-label="periodLabel" />
+            </div>
           </v-col>
         </v-row>
 
         <v-row class="mt-4">
           <v-col cols="12" md="6">
-            <v-card flat class="glass-card glass-card--chart chart-card">
-              <v-card-title class="chart-title pa-5 pb-0">Monthly Revenue</v-card-title>
+            <v-card
+              flat
+              class="glass-card glass-card--chart chart-card dashboard-tile-enter"
+              :style="scatterEnterStyle(5, 120)"
+            >
+              <v-card-title class="chart-title pa-5 pb-0">Shipment Volume</v-card-title>
               <v-card-text class="chart-container pa-5">
-                <Bar :data="revenueChartData" :options="revenueChartOptions" />
+                <Bar :data="shipmentVolumeChartData" :options="shipmentVolumeChartOptions" />
               </v-card-text>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card flat class="glass-card glass-card--chart chart-card">
-              <v-card-title class="chart-title pa-5 pb-0">Visitors Over Time</v-card-title>
+            <v-card
+              flat
+              class="glass-card glass-card--chart chart-card dashboard-tile-enter"
+              :style="scatterEnterStyle(6, 120)"
+            >
+              <v-card-title class="chart-title pa-5 pb-0">On-Time Delivery Rates</v-card-title>
               <v-card-text class="chart-container pa-5">
-                <Line :data="visitorsChartData" :options="visitorsChartOptions" />
+                <Line :data="onTimeChartData" :options="onTimeChartOptions" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -377,10 +493,32 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
 
         <v-row class="mt-4">
           <v-col cols="12">
-            <v-card flat class="glass-card glass-card--chart chart-card">
-              <v-card-title class="chart-title pa-5 pb-0">Conversions Trend</v-card-title>
+            <v-card
+              flat
+              class="glass-card glass-card--chart chart-card dashboard-tile-enter"
+              :style="scatterEnterStyle(7, 120)"
+            >
+              <v-card-title class="chart-title pa-5 pb-0">Regional Performance</v-card-title>
+              <v-card-subtitle class="chart-subtitle px-5 pb-0">
+                On-time delivery rate by region
+              </v-card-subtitle>
               <v-card-text class="chart-container pa-5">
-                <Line :data="conversionsChartData" :options="conversionsChartOptions" />
+                <Bar :data="regionalChartData" :options="regionalChartOptions" />
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row class="mt-4">
+          <v-col cols="12">
+            <v-card
+              flat
+              class="glass-card glass-card--chart chart-card dashboard-tile-enter"
+              :style="scatterEnterStyle(8, 120)"
+            >
+              <v-card-title class="chart-title pa-5 pb-0">Open Exceptions</v-card-title>
+              <v-card-text class="chart-container pa-5">
+                <Line :data="openExceptionsChartData" :options="openExceptionsChartOptions" />
               </v-card-text>
             </v-card>
           </v-col>
@@ -393,7 +531,8 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
 <style scoped>
 .month-picker {
   max-width: 168px;
-  margin-right: 20px;
+  margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .metric-card,
@@ -403,5 +542,11 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
 
 .chart-container {
   height: 280px;
+}
+
+.chart-subtitle {
+  color: var(--dash-text-muted);
+  font-size: 0.8125rem;
+  opacity: 1;
 }
 </style>

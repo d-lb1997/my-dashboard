@@ -227,19 +227,113 @@ body {
   color: #004d5a !important;
 }
 
+.glass-app-bar .v-toolbar__content {
+  gap: 8px;
+  overflow: visible;
+  padding-inline: 20px;
+}
+
+@media (min-width: 600px) and (max-width: 959px) {
+  .glass-app-bar .v-toolbar__content {
+    padding-inline: 16px;
+  }
+}
+
 .dashboard-title {
   font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--dash-text);
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.app-brand .ff-logo {
+  display: block;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.app-bar-spacer {
+  flex: 1 1 8px;
+  min-width: 8px;
+}
+
+@media (max-width: 599px) {
+  .glass-app-bar .v-toolbar__content {
+    padding-inline: 12px;
+    gap: 6px;
+  }
+
+  .app-brand {
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .dashboard-title {
+    font-size: 0.8125rem;
+    letter-spacing: -0.03em;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .app-brand .ff-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .month-picker {
+    max-width: 108px !important;
+    margin-right: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .month-picker.glass-select .v-field {
+    font-size: 0.8125rem;
+  }
 }
 
 .dashboard-main {
   position: relative;
   z-index: 1;
+}
+
+@keyframes dashboard-scatter-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--scatter-x, 0), var(--scatter-y, 18px), 0) scale(0.94);
+    filter: blur(8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.dashboard-tile-enter {
+  opacity: 0;
+  animation: dashboard-scatter-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--stagger-delay, 0ms);
+  will-change: transform, opacity, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-tile-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }

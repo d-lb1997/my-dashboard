@@ -1,10 +1,16 @@
+export interface RegionMetrics {
+  label: string
+  shipmentVolume: number
+  onTimeDeliveryRate: number
+}
+
 export interface MonthMetrics {
   month: string
   label: string
-  revenue: number
-  visitors: number
-  conversions: number
-  orders: number
+  shipmentVolume: number
+  onTimeDeliveryRate: number
+  openExceptions: number
+  regions: RegionMetrics[]
 }
 
 export interface MetricsData {
@@ -12,7 +18,11 @@ export interface MetricsData {
   months: MonthMetrics[]
 }
 
-export type MetricKey = 'revenue' | 'visitors' | 'conversions' | 'orders'
+export type MetricKey =
+  | 'shipmentVolume'
+  | 'onTimeDeliveryRate'
+  | 'regionalPerformance'
+  | 'openExceptions'
 
 export interface MetricChange {
   percent: number
@@ -25,4 +35,5 @@ export interface SummaryMetric {
   icon: string
   value: string
   change: MetricChange
+  higherIsBetter: boolean
 }

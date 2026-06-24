@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { SummaryMetric } from '@/types/metrics'
-import { formatChangeText } from '@/utils/metrics'
+import { formatChangeText, getSentimentDirection } from '@/utils/metrics'
 
 const props = defineProps<{
   metrics: SummaryMetric[]
@@ -9,8 +9,12 @@ const props = defineProps<{
 }>()
 
 const trendSummary = computed(() => {
-  const up = props.metrics.filter((m) => m.change.direction === 'up').length
-  const down = props.metrics.filter((m) => m.change.direction === 'down').length
+  const up = props.metrics.filter(
+    (m) => getSentimentDirection(m.change, m.higherIsBetter) === 'up',
+  ).length
+  const down = props.metrics.filter(
+    (m) => getSentimentDirection(m.change, m.higherIsBetter) === 'down',
+  ).length
   const flat = props.metrics.filter((m) => m.change.direction === 'flat').length
 
   if (down === 0 && flat === 0) {
@@ -28,13 +32,15 @@ const trendSummary = computed(() => {
   return parts.join(' · ')
 })
 
-function changeIcon(direction: SummaryMetric['change']['direction']): string {
+function changeIcon(metric: SummaryMetric): string {
+  const direction = getSentimentDirection(metric.change, metric.higherIsBetter)
   if (direction === 'up') return 'mdi-arrow-up'
   if (direction === 'down') return 'mdi-arrow-down'
   return 'mdi-minus'
 }
 
-function changePillClass(direction: SummaryMetric['change']['direction']): string {
+function changePillClass(metric: SummaryMetric): string {
+  const direction = getSentimentDirection(metric.change, metric.higherIsBetter)
   if (direction === 'up') return 'change-pill--up'
   if (direction === 'down') return 'change-pill--down'
   return 'change-pill--flat'
@@ -77,8 +83,8 @@ function changePillClass(direction: SummaryMetric['change']['direction']): strin
             </div>
             <div class="overview-value">{{ metric.value }}</div>
             <div class="d-flex align-center flex-wrap ga-2 mt-3">
-              <span class="change-pill" :class="changePillClass(metric.change.direction)">
-                <v-icon :icon="changeIcon(metric.change.direction)" size="x-small" />
+              <span class="change-pill" :class="changePillClass(metric)">
+                <v-icon :icon="changeIcon(metric)" size="x-small" />
                 {{ formatChangeText(metric.change) }}
               </span>
               <span class="change-hint">vs prev. month</span>
